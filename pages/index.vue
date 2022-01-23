@@ -76,18 +76,9 @@ export default {
 				this.balance = res.data.balance
 			})
 		},
-
-
-		// updateBalance(newBalance) {
-		// 	const payload = localStorage.getItem('payload')
-		// 	const parsePayload = JSON.parse(payload)
-
-		// 	parsePayload.balance = newBalance
-		// 	localStorage.setItem('payload', JSON.stringify(parsePayload))
-		// },
 		//ПОПОЛНЕНИЕ
 		replenish() {
-			if (this.replenishCount > 0 && this.replenishCount !== '') {
+			if (this.replenishCount !== '') {
 				const form = {
 					nickname: this.$auth.user.nickname,
 					replenishCount: this.replenishCount
@@ -96,10 +87,6 @@ export default {
 				.then((res) => {
 					this.replenishSuccessfully = res.data.message
 					this.checkBalance()
-					// this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
-					// .then((res) => {
-					// 	this.balance = res.data.balance
-					// })
 				})
 			} else {
 				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
@@ -107,7 +94,9 @@ export default {
 		},
 		//СНЯТИЕ
 		withdraw() {
-			if (this.withdrawCount > 0 && this.withdrawCount !== '' && this.balance > 0 && this.balance > this.withdrawCount) {
+			if (this.withdrawCount !== '') {
+				console.log(this.balance)
+				console.log(this.withdrawCount)
 				const form = {
 					nickname: this.$auth.user.nickname,
 					withdrawCount: this.withdrawCount
@@ -116,10 +105,6 @@ export default {
 				.then((res) => {
 					this.withdrawSuccessfully = res.data.message
 					this.checkBalance()
-					// this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
-					// .then((res) => {
-					// 	this.balance = res.data.balance
-					// })
 				})
 			} else {
 				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
@@ -127,7 +112,7 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			if (this.transferCount > 0 && this.transferCount !== '' && this.balance > 0) {
+			if (this.transferCount !== '') {
 				const form = {
 					nickname: this.$auth.user.nickname,
 					requiredNickname: this.requiredNickname,
@@ -137,10 +122,6 @@ export default {
 				.then((res) => {
 					this.transferSuccessfully = res.data.message
 					this.checkBalance()
-					// this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
-					// .then((res) => {
-					// 	this.balance = res.data.balance
-					// })
 				})
 				.catch((err) => {
 					this.errorUnknown = err.response.data.message
