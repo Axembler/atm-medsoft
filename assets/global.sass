@@ -1,0 +1,45 @@
+html
+	color: white
+	background: #202020
+	font-family: Montserrat
+	word-spacing: 1px
+	-ms-text-size-adjust: 100%
+	-webkit-text-size-adjust: 100%
+	-moz-osx-font-smoothing: grayscale
+	-webkit-font-smoothing: antialiased
+
+.app, .header, .footer
+	width: 100%
+	margin: 0 auto
+
+a
+	text-decoration: none
+	&:hover
+		opacity: 0.87
+	&:active
+		opacity: 0.82
+
+button
+	cursor: pointer
+	font-family: Montserrat
+	&:hover
+		opacity: 0.87
+	&:active
+		opacity: 0.82
+
+input 
+	width: 250px
+	height: 30px
+	font-size: 18px
+	border: 0 
+	border-bottom: 1px solid white
+	background: rgba(255, 255, 255, .1)
+	color: white
+
+input[type=number]::-webkit-inner-spin-button 
+	-webkit-appearance: none
+
+.display-flex
+	display: flex
+.direction-column
+	flex-direction: column
