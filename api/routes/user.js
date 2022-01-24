@@ -17,16 +17,12 @@ router.post('/user/replenish', async (req, res) => {
     nickname: req.body.nickname,
   })
   if (user) {
-    if (true) {
-      const newBalance = Number(user.balance) + Number(req.body.replenishCount)
-      await User.updateOne(
-        {balance: user.balance},
-        {balance: newBalance}
-      )
-      res.status(200).json({message: 'Balance has been successfully replenished', newBalance})
-    } else {
-      res.status(500).json({message: 'ERROR: It is not possible to send a negative or empty amount'})
-    }
+    const newBalance = Number(user.balance) + Number(req.body.replenishCount)
+    await User.updateOne(
+      {balance: user.balance},
+      {balance: newBalance}
+    )
+    res.status(200).json({message: 'Balance has been successfully replenished', newBalance})
   }
 })
 
@@ -36,14 +32,12 @@ router.post('/user/withdraw', async (req, res) => {
     nickname: req.body.nickname,
   })
   if (user) {
-    if (true) {
-      const newBalance = Number(user.balance) - Number(req.body.withdrawCount)
-      await User.updateOne(
-        {balance: user.balance},
-        {balance: newBalance}
-      )
-      res.status(200).json({message: 'Money successfully withdrawn', newBalance})
-    }
+    const newBalance = Number(user.balance) - Number(req.body.withdrawCount)
+    await User.updateOne(
+      {balance: user.balance},
+      {balance: newBalance}
+    )
+    res.status(200).json({message: 'Money successfully withdrawn', newBalance})
   }
 })
 
@@ -57,21 +51,17 @@ router.post('/user/transfer', async (req, res) => {
   })
   if (user) {
     if (requiredUser && requiredUser !== user) {
-      if (true) {
-        const userNewBalance = Number(user.balance) - Number(req.body.transferCount)
-        await User.updateOne(
-          {balance: user.balance},
-          {balance: userNewBalance}
-        )
-        const reqUserNewBalance = Number(requiredUser.balance) + Number(req.body.transferCount)
-        await User.updateOne(
-          {balance: requiredUser.balance},
-          {balance: reqUserNewBalance}
-        )
-        res.status(200).json({message: `The money was successfully transferred to the ${requiredUser.nickname}`, userNewBalance, reqUserNewBalance})
-      } else {
-        res.status(500).json({message: 'ERROR: It is not possible to send a negative or empty amount'})
-      }
+      const userNewBalance = Number(user.balance) - Number(req.body.transferCount)
+      await User.updateOne(
+        {balance: user.balance},
+        {balance: userNewBalance}
+      )
+      const reqUserNewBalance = Number(requiredUser.balance) + Number(req.body.transferCount)
+      await User.updateOne(
+        {balance: requiredUser.balance},
+        {balance: reqUserNewBalance}
+      )
+      res.status(200).json({message: `The money was successfully transferred to the ${requiredUser.nickname}`, userNewBalance, reqUserNewBalance})
     } else {
       res.status(500).json({message: 'ERROR: User not found'})
     }

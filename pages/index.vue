@@ -66,60 +66,77 @@ export default {
 			transferSuccessfully: '',
 
 			errorNegative: '',
-			errorUnknown: ''
+			errorUnknown: '',
+
+			pending: false
 		}
 	},
 	methods: {
 		//ПОПОЛНЕНИЕ
 		replenish() {
-			if (this.replenishCount !== '' && this.replenishCount > 0) {
-				const form = {
-					nickname: this.$auth.user.nickname,
-					replenishCount: this.replenishCount
+			if (!this.pending) {
+				if (this.replenishCount !== '' && this.replenishCount > 0) {
+					this.pending = true
+					const form = {
+						nickname: this.$auth.user.nickname,
+						replenishCount: this.replenishCount
+					}
+					this.$axios.post('/api/user/replenish', form)
+					.then((res) => {
+						this.replenishSuccessfully = res.data.message
+						this.balance = Number(res.data.newBalance)
+
+						this.pending = false
+					})
+				} else {
+					this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
 				}
-				this.$axios.post('/api/user/replenish', form)
-				.then((res) => {
-					this.replenishSuccessfully = res.data.message
-					this.balance = Number(res.data.newBalance)
-				})
-			} else {
-				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
 			}
 		},
 		//СНЯТИЕ
 		withdraw() {
-			if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
-				const form = {
-					nickname: this.$auth.user.nickname,
-					withdrawCount: this.withdrawCount
+			if (!this.pending) {
+				if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
+					this.pending = true
+					const form = {
+						nickname: this.$auth.user.nickname,
+						withdrawCount: this.withdrawCount
+					}
+					this.$axios.post('/api/user/withdraw', form)
+					.then((res) => {
+						this.withdrawSuccessfully = res.data.message
+						this.balance = Number(res.data.newBalance)
+
+						this.pending = false
+					})
+				} else {
+					this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
 				}
-				this.$axios.post('/api/user/withdraw', form)
-				.then((res) => {
-					this.withdrawSuccessfully = res.data.message
-					this.balance = Number(res.data.newBalance)
-				})
-			} else {
-				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
 			}
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
-				const form = {
-					nickname: this.$auth.user.nickname,
-					requiredNickname: this.requiredNickname,
-					transferCount: this.transferCount
+			if (!this.pending) {
+				if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
+					this.pending = true
+					const form = {
+						nickname: this.$auth.user.nickname,
+						requiredNickname: this.requiredNickname,
+						transferCount: this.transferCount
+					}
+					this.$axios.post('/api/user/transfer', form)
+					.then((res) => {
+						this.transferSuccessfully = res.data.message
+						this.balance = Number(res.data.userNewBalance)
+
+						this.pending = false
+					})
+					.catch((err) => {
+						this.errorUnknown = err.response.data.message
+					})
+				} else {
+					this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
 				}
-				this.$axios.post('/api/user/transfer', form)
-				.then((res) => {
-					this.transferSuccessfully = res.data.message
-					this.balance = Number(res.data.userNewBalance)
-				})
-				.catch((err) => {
-					this.errorUnknown = err.response.data.message
-				})
-			} else {
-				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
 			}
 		}
 	},
