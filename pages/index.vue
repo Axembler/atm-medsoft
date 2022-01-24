@@ -11,19 +11,19 @@
 		<div class="actions">
 			<div class="replenish">
 				<small for="replenish-input">Replenish the balance by the amount of:</small>
-				<div class="display-flex">
+				<form class="display-flex">
 					<input id="replenish-input" type="number" min="1" v-model.trim="replenishCount">
 					<button @click="replenish"><img class="check" src="images/check.svg"></button>
-				</div>
+				</form>
 			</div>
 			<div class="withdraw">
 				<small for="withdraw-input">Withdraw money from your account in the amount of:</small>
-				<div class="display-flex">
+				<form class="display-flex">
 					<input id="withdraw-input" type="number" min="1" v-model.trim="withdrawCount">
 					<button @click="withdraw"><img class="check" src="images/check.svg"></button>
-				</div>
+				</form>
 			</div>
-			<div class="transfer">
+			<form class="transfer">
 				<div class="display-flex direction-column">
 					<label>Transfer money from your account to the user's account</label>
 
@@ -34,16 +34,15 @@
 					<input type="number" id="transfer-input" min="1" v-model.trim="transferCount">
 				</div>
 				<button class="transfer-perform" @click="transfer">TRANSFER</button>
-			</div>
-			<div class="messages">
-				<span class="successfully" v-if="replenishSuccessfully">{{ replenishSuccessfully }}</span>
-				<span class="successfully" v-if="withdrawSuccessfully">{{ withdrawSuccessfully }}</span>
-				<span class="successfully" v-if="transferSuccessfully">{{ transferSuccessfully }}</span>
-				
-				<span class="error" v-if="errorNegative">{{ errorNegative }}</span>
-				<span class="error" v-if="errorUnknown">{{ errorUnknown }}</span>
-			</div>
+			</form>
 		</div>
+		<transition-group name="fade" class="messages">
+			<span class="successfully fade-item" v-if="replenishSuccessfully" key="replenishSuccessfully">{{ replenishSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="withdrawSuccessfully" key="withdrawSuccessfully">{{ withdrawSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="transferSuccessfully" key="transferSuccessfully">{{ transferSuccessfully }}</span>
+
+			<span class="error fade-item" v-if="error" key="error">{{ error }}</span>
+		</transition-group>
 	</div>
 </template>
 
@@ -65,8 +64,7 @@ export default {
 			withdrawSuccessfully: '',
 			transferSuccessfully: '',
 
-			errorNegative: '',
-			errorUnknown: '',
+			error: '',
 
 			pending: false
 		}
@@ -74,6 +72,7 @@ export default {
 	methods: {
 		//ПОПОЛНЕНИЕ
 		replenish() {
+			event.preventDefault()
 			if (!this.pending) {
 				if (this.replenishCount !== '' && this.replenishCount > 0) {
 					this.pending = true
@@ -84,17 +83,23 @@ export default {
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
 						this.replenishSuccessfully = res.data.message
+						setTimeout(() => this.replenishSuccessfully = '', 3000)
+
 						this.balance = Number(res.data.newBalance)
 
 						this.pending = false
 					})
 				} else {
-					this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
+					this.error = 'ERROR: It is not possible to send a negative or empty amount'
+					setTimeout(() => this.error = '', 3000)
+
+					this.pending = false
 				}
 			}
 		},
 		//СНЯТИЕ
 		withdraw() {
+			event.preventDefault()
 			if (!this.pending) {
 				if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
 					this.pending = true
@@ -105,17 +110,23 @@ export default {
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
 						this.withdrawSuccessfully = res.data.message
+						setTimeout(() => this.withdrawSuccessfully = '', 3000)
+
 						this.balance = Number(res.data.newBalance)
 
 						this.pending = false
 					})
 				} else {
-					this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
+					this.error = 'ERROR: It is not possible to send a negative or empty amount'
+					setTimeout(() => this.error = '', 3000)
+					
+					this.pending = false
 				}
 			}
 		},
 		//ПЕРЕДАЧА
 		transfer() {
+			event.preventDefault()
 			if (!this.pending) {
 				if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
 					this.pending = true
@@ -127,15 +138,23 @@ export default {
 					this.$axios.post('/api/user/transfer', form)
 					.then((res) => {
 						this.transferSuccessfully = res.data.message
+						setTimeout(() => this.transferSuccessfully = '', 3000)
+
 						this.balance = Number(res.data.userNewBalance)
 
 						this.pending = false
 					})
 					.catch((err) => {
-						this.errorUnknown = err.response.data.message
+						this.error = err.response.data.message
+						setTimeout(() => this.error = '', 3000)
+						
+						this.pending = false
 					})
 				} else {
-					this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
+					this.error = 'ERROR: It is not possible to send a negative or empty amount'
+					setTimeout(() => this.error = '', 3000)
+					
+					this.pending = false
 				}
 			}
 		}
@@ -165,7 +184,8 @@ export default {
 	display: flex
 	flex-direction: column
 	align-items: center
-	width: 285px
+	width: 100%
+	margin-bottom: 25px
 .transfer
 	display: flex
 	flex-direction: column
@@ -173,6 +193,7 @@ export default {
 	justify-content: center
 	padding-top: 30px
 .transfer label
+	width: 285px
 	padding-bottom: 10px
 	font-size: 14px
 .transfer-perform
@@ -211,4 +232,8 @@ button
 	background: $red
 input
 	margin-bottom: 10px
+
+@media (max-width: 350px)
+	.info
+		padding-bottom: 30px
 </style>

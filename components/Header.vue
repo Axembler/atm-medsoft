@@ -45,4 +45,8 @@ header
 .login, .logout
 	font-size: 20px
 	white-space: nowrap
+
+@media (max-width: 350px)
+	header
+		margin-bottom: 20px
 </style>
