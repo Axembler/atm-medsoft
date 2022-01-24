@@ -70,15 +70,9 @@ export default {
 		}
 	},
 	methods: {
-		checkBalance() {
-			this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
-			.then((res) => {
-				this.balance = res.data.balance
-			})
-		},
 		//ПОПОЛНЕНИЕ
 		replenish() {
-			if (this.replenishCount !== '') {
+			if (this.replenishCount !== '' && this.replenishCount > 0) {
 				const form = {
 					nickname: this.$auth.user.nickname,
 					replenishCount: this.replenishCount
@@ -86,7 +80,7 @@ export default {
 				this.$axios.post('/api/user/replenish', form)
 				.then((res) => {
 					this.replenishSuccessfully = res.data.message
-					this.checkBalance()
+					this.balance = Number(res.data.newBalance)
 				})
 			} else {
 				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
@@ -94,9 +88,7 @@ export default {
 		},
 		//СНЯТИЕ
 		withdraw() {
-			if (this.withdrawCount !== '') {
-				console.log(this.balance)
-				console.log(this.withdrawCount)
+			if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
 				const form = {
 					nickname: this.$auth.user.nickname,
 					withdrawCount: this.withdrawCount
@@ -104,7 +96,7 @@ export default {
 				this.$axios.post('/api/user/withdraw', form)
 				.then((res) => {
 					this.withdrawSuccessfully = res.data.message
-					this.checkBalance()
+					this.balance = Number(res.data.newBalance)
 				})
 			} else {
 				this.errorNegative = 'ERROR: It is not possible to send a negative or empty amount'
@@ -112,7 +104,7 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			if (this.transferCount !== '') {
+			if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
 				const form = {
 					nickname: this.$auth.user.nickname,
 					requiredNickname: this.requiredNickname,
@@ -121,7 +113,7 @@ export default {
 				this.$axios.post('/api/user/transfer', form)
 				.then((res) => {
 					this.transferSuccessfully = res.data.message
-					this.checkBalance()
+					this.balance = Number(res.data.userNewBalance)
 				})
 				.catch((err) => {
 					this.errorUnknown = err.response.data.message
@@ -132,7 +124,10 @@ export default {
 		}
 	},
 	mounted() {
-		this.checkBalance()
+		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
+		.then((res) => {
+			this.balance = Number(res.data.balance)
+		})
 	}
 }
 </script>s

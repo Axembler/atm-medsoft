@@ -17,7 +17,7 @@ router.post('/user/replenish', async (req, res) => {
     nickname: req.body.nickname,
   })
   if (user) {
-    if (req.body.replenishCount > 0) {
+    if (true) {
       const newBalance = Number(user.balance) + Number(req.body.replenishCount)
       await User.updateOne(
         {balance: user.balance},
@@ -36,13 +36,14 @@ router.post('/user/withdraw', async (req, res) => {
     nickname: req.body.nickname,
   })
   if (user) {
-    if (req.body.withdrawCount > 0 && req.body.withdrawCount < user.balance)
-    const newBalance = Number(user.balance) - Number(req.body.withdrawCount)
-    await User.updateOne(
-      {balance: user.balance},
-      {balance: newBalance}
-    )
-    res.status(200).json({message: 'Money successfully withdrawn', newBalance})
+    if (true) {
+      const newBalance = Number(user.balance) - Number(req.body.withdrawCount)
+      await User.updateOne(
+        {balance: user.balance},
+        {balance: newBalance}
+      )
+      res.status(200).json({message: 'Money successfully withdrawn', newBalance})
+    }
   }
 })
 
@@ -56,7 +57,7 @@ router.post('/user/transfer', async (req, res) => {
   })
   if (user) {
     if (requiredUser && requiredUser !== user) {
-      if (req.body.transferCount > 0 && user.balance > 0 && user.balance > req.body.transferCount) {
+      if (true) {
         const userNewBalance = Number(user.balance) - Number(req.body.transferCount)
         await User.updateOne(
           {balance: user.balance},
