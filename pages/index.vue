@@ -12,14 +12,14 @@
 			<div class="replenish">
 				<small for="replenish-input">Replenish the balance by the amount of:</small>
 				<form class="display-flex">
-					<input id="replenish-input" type="number" min="1" v-model.trim="replenishCount">
+					<input id="replenish-input" type="number" min="1" v-model.trim="replenishCount" />
 					<button @click="replenish"><img class="check" src="images/check.svg"></button>
 				</form>
 			</div>
 			<div class="withdraw">
 				<small for="withdraw-input">Withdraw money from your account in the amount of:</small>
 				<form class="display-flex">
-					<input id="withdraw-input" type="number" min="1" v-model.trim="withdrawCount">
+					<input id="withdraw-input" type="number" min="1" v-model.trim="withdrawCount" />
 					<button @click="withdraw"><img class="check" src="images/check.svg"></button>
 				</form>
 			</div>
@@ -28,18 +28,18 @@
 					<label>Transfer money from your account to the user's account</label>
 
 					<small for="user-input">For user:</small>
-					<input type="text" id="user-input" v-model.trim="requiredNickname">
+					<input type="text" id="user-input" v-model.trim="requiredNickname" />
 
 					<small for="transfer-input">Transfer amount:</small>
-					<input type="number" id="transfer-input" min="1" v-model.trim="transferCount">
+					<input type="number" id="transfer-input" min="1" v-model.trim="transferCount" />
 				</div>
 				<button class="transfer-perform" @click="transfer">TRANSFER</button>
 			</form>
 		</div>
 		<transition-group name="fade" class="messages">
-			<span class="successfully fade-item" v-if="replenishSuccessfully" key="replenishSuccessfully">{{ replenishSuccessfully }}</span>
-			<span class="successfully fade-item" v-if="withdrawSuccessfully" key="withdrawSuccessfully">{{ withdrawSuccessfully }}</span>
-			<span class="successfully fade-item" v-if="transferSuccessfully" key="transferSuccessfully">{{ transferSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="replenishSuccessfully" key="rep">{{ replenishSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="withdrawSuccessfully" key="wit">{{ withdrawSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="transferSuccessfully" key="tra">{{ transferSuccessfully }}</span>
 
 			<span class="error fade-item" v-if="error" key="error">{{ error }}</span>
 		</transition-group>
@@ -128,30 +128,37 @@ export default {
 		transfer() {
 			event.preventDefault()
 			if (!this.pending) {
-				if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
-					this.pending = true
-					const form = {
-						nickname: this.$auth.user.nickname,
-						requiredNickname: this.requiredNickname,
-						transferCount: this.transferCount
-					}
-					this.$axios.post('/api/user/transfer', form)
-					.then((res) => {
-						this.transferSuccessfully = res.data.message
-						setTimeout(() => this.transferSuccessfully = '', 3000)
+				if (this.$auth.user.nickname !== this.requiredNickname) {
+					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
+						this.pending = true
+						const form = {
+							nickname: this.$auth.user.nickname,
+							requiredNickname: this.requiredNickname,
+							transferCount: this.transferCount
+						}
+						this.$axios.post('/api/user/transfer', form)
+						.then((res) => {
+							this.transferSuccessfully = res.data.message
+							setTimeout(() => this.transferSuccessfully = '', 3000)
 
-						this.balance = Number(res.data.userNewBalance)
+							this.balance = Number(res.data.userNewBalance)
 
-						this.pending = false
-					})
-					.catch((err) => {
-						this.error = err.response.data.message
+							this.pending = false
+						})
+						.catch((err) => {
+							this.error = err.response.data.message
+							setTimeout(() => this.error = '', 3000)
+							
+							this.pending = false
+						})
+					} else {
+						this.error = 'ERROR: It is not possible to send a negative or empty amount'
 						setTimeout(() => this.error = '', 3000)
 						
 						this.pending = false
-					})
+					}
 				} else {
-					this.error = 'ERROR: It is not possible to send a negative or empty amount'
+					this.error = 'ERROR: You cant send money to yourself'
 					setTimeout(() => this.error = '', 3000)
 					
 					this.pending = false

@@ -1,5 +1,5 @@
 <template>
-	<div class="main">
+	<form class="main">
 		<div class="form">
 			<label for="nickname">Nickname (Иван | Егор)</label>
 			<input list="nicknames" id="nickname" type="text" v-model.trim="nickname" autofocus>
@@ -8,7 +8,7 @@
 			<input list="passwords" type="password" id="password" v-model.trim="password">
 		</div>
 		<button @click="authorization">Log in</button>
-	</div>
+	</form>
 </template>
 
 <script>
@@ -23,6 +23,7 @@ export default {
 	},
 	methods: {
 		authorization () {
+			event.preventDefault()
 			const form = {
 				nickname: this.nickname,
 				password: this.password
@@ -34,24 +35,6 @@ export default {
 				this.$router.push('/')
 			})
 		}
-		// authorization () {
-		// 	const form = {
-		// 		nickname: this.nickname,
-		// 		password: this.password
-		// 	}
-		// 	this.$axios.post('/api/user/login', form)
-		// 	.then(async(res) => {
-		// 		if (res.data.token) {
-		// 			const token = JSON.stringify(res.data.token)
-
-		// 			localStorage.setItem('token', token)
-		// 			await this.$store.commit('token', token)
-		// 			this.$axios.setToken(token, 'Bearer')
-		// 		} else {
-		// 			console.log('Ошибка авторизации')
-		// 		}
-		// 	})
-		// }
 	}
 }
 </script>
