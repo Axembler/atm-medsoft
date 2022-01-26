@@ -37,11 +37,13 @@
 			</form>
 		</div>
 		<transition-group name="fade" class="messages">
-			<span class="successfully fade-item" v-if="replenishSuccessfully" key="rep">{{ replenishSuccessfully }}</span>
-			<span class="successfully fade-item" v-if="withdrawSuccessfully" key="wit">{{ withdrawSuccessfully }}</span>
-			<span class="successfully fade-item" v-if="transferSuccessfully" key="tra">{{ transferSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="replenishSuccessfully" key="repSuc">{{ replenishSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="withdrawSuccessfully" key="witSuc">{{ withdrawSuccessfully }}</span>
+			<span class="successfully fade-item" v-if="transferSuccessfully" key="traSuc">{{ transferSuccessfully }}</span>
 
-			<span class="error fade-item" v-if="error" key="error">{{ error }}</span>
+			<span class="error fade-item" v-if="replenishError" key="repErr">{{ replenishError }}</span>
+			<span class="error fade-item" v-if="withdrawError" key="witErr">{{ withdrawError }}</span>
+			<span class="error fade-item" v-if="transferError" key="traErr">{{ transferError }}</span>
 		</transition-group>
 	</div>
 </template>
@@ -64,7 +66,9 @@ export default {
 			withdrawSuccessfully: '',
 			transferSuccessfully: '',
 
-			error: '',
+			replenishError: '',
+			withdrawError: '',
+			transferError: '',
 
 			pending: false
 		}
@@ -90,8 +94,8 @@ export default {
 						this.pending = false
 					})
 				} else {
-					this.error = 'ERROR: It is not possible to send a negative or empty amount'
-					setTimeout(() => this.error = '', 3000)
+					this.replenishError = 'ERROR: It is not possible to send a negative or empty amount'
+					setTimeout(() => this.replenishError = '', 3000)
 
 					this.pending = false
 				}
@@ -117,8 +121,8 @@ export default {
 						this.pending = false
 					})
 				} else {
-					this.error = 'ERROR: It is not possible to send a negative or empty amount'
-					setTimeout(() => this.error = '', 3000)
+					this.withdrawError = 'ERROR: It is not possible to send a negative or empty amount'
+					setTimeout(() => this.withdrawError = '', 3000)
 					
 					this.pending = false
 				}
@@ -146,20 +150,20 @@ export default {
 							this.pending = false
 						})
 						.catch((err) => {
-							this.error = err.response.data.message
-							setTimeout(() => this.error = '', 3000)
+							this.transferError = err.response.data.message
+							setTimeout(() => this.transferError = '', 3000)
 							
 							this.pending = false
 						})
 					} else {
-						this.error = 'ERROR: It is not possible to send a negative or empty amount'
-						setTimeout(() => this.error = '', 3000)
+						this.transferError = 'ERROR: It is not possible to send a negative or empty amount'
+						setTimeout(() => this.transferError = '', 3000)
 						
 						this.pending = false
 					}
 				} else {
-					this.error = 'ERROR: You cant send money to yourself'
-					setTimeout(() => this.error = '', 3000)
+					this.transferError = 'ERROR: You cant send money to yourself'
+					setTimeout(() => this.transferError = '', 3000)
 					
 					this.pending = false
 				}
