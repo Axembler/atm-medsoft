@@ -36,15 +36,14 @@
 				<button class="transfer-perform" @click="transfer">TRANSFER</button>
 			</form>
 		</div>
-		<transition-group name="fade" class="messages">
-			<span class="successfully fade-item" v-if="replenishSuccessfully" key="repSuc">{{ replenishSuccessfully }}</span>
-			<span class="successfully fade-item" v-if="withdrawSuccessfully" key="witSuc">{{ withdrawSuccessfully }}</span>
-			<span class="successfully fade-item" v-if="transferSuccessfully" key="traSuc">{{ transferSuccessfully }}</span>
-
-			<span class="error fade-item" v-if="replenishError" key="repErr">{{ replenishError }}</span>
-			<span class="error fade-item" v-if="withdrawError" key="witErr">{{ withdrawError }}</span>
-			<span class="error fade-item" v-if="transferError" key="traErr">{{ transferError }}</span>
-		</transition-group>
+		<div class="output">
+			<span class="successfully" v-for="message in messages" :key="message.id">
+				{{ message }}
+			</span>
+			<span class="error" v-for="error in errors" :key="error.id">
+				{{ error }}
+			</span>
+		</div>
 	</div>
 </template>
 
@@ -62,13 +61,8 @@ export default {
 			withdrawCount: null,
 			transferCount: null,
 
-			replenishSuccessfully: '',
-			withdrawSuccessfully: '',
-			transferSuccessfully: '',
-
-			replenishError: '',
-			withdrawError: '',
-			transferError: '',
+			messages: [],
+			errors: [],
 
 			pending: false
 		}
@@ -86,17 +80,16 @@ export default {
 					}
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
-						this.replenishSuccessfully = res.data.message
-						setTimeout(() => this.replenishSuccessfully = '', 3000)
-
+						this.messages.push(res.data.message)
+						setTimeout(() => this.messages.shift(), 3000)
 						this.balance = Number(res.data.newBalance)
-
+						this.replenishCount = null
 						this.pending = false
 					})
 				} else {
-					this.replenishError = 'ERROR: It is not possible to send a negative or empty amount'
-					setTimeout(() => this.replenishError = '', 3000)
-
+					this.errors.push('It is not possible to send a negative or empty amount')
+					setTimeout(() => this.errors.shift(), 3000)
+					this.replenishCount = null
 					this.pending = false
 				}
 			}
@@ -113,17 +106,16 @@ export default {
 					}
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
-						this.withdrawSuccessfully = res.data.message
-						setTimeout(() => this.withdrawSuccessfully = '', 3000)
-
+						this.messages.push(res.data.message)
+						setTimeout(() => this.messages.shift(), 3000)
 						this.balance = Number(res.data.newBalance)
-
+						this.withdrawCount = null
 						this.pending = false
 					})
 				} else {
-					this.withdrawError = 'ERROR: It is not possible to send a negative or empty amount'
-					setTimeout(() => this.withdrawError = '', 3000)
-					
+					this.errors.push('It is not possible to send a negative or empty amount')
+					setTimeout(() => this.errors.shift(), 3000)
+					this.withdrawCount = null
 					this.pending = false
 				}
 			}
@@ -142,29 +134,28 @@ export default {
 						}
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
-							this.transferSuccessfully = res.data.message
-							setTimeout(() => this.transferSuccessfully = '', 3000)
-
+							this.messages.push(res.data.message)
+							setTimeout(() => this.messages.shift(), 3000)
 							this.balance = Number(res.data.userNewBalance)
-
+							this.transferCount = null
+							this.requiredNickname = ''
 							this.pending = false
 						})
 						.catch((err) => {
-							this.transferError = err.response.data.message
-							setTimeout(() => this.transferError = '', 3000)
-							
+							this.messages.push(err.response.data.message)
+							setTimeout(() => this.messages.shift(), 3000)
 							this.pending = false
 						})
 					} else {
-						this.transferError = 'ERROR: It is not possible to send a negative or empty amount'
-						setTimeout(() => this.transferError = '', 3000)
-						
+						this.errors.push('It is not possible to send a negative or empty amount')
+						setTimeout(() => this.errors.shift(), 3000)
+						this.transferCount = null
 						this.pending = false
 					}
 				} else {
-					this.transferError = 'ERROR: You cant send money to yourself'
-					setTimeout(() => this.transferError = '', 3000)
-					
+					this.errors.push('It is not possible to send a negative or empty amount')
+					setTimeout(() => this.errors.shift(), 3000)
+					this.transferCount = null
 					this.pending = false
 				}
 			}
@@ -218,18 +209,16 @@ export default {
 	width: 280px
 .check
 	width: 15px
-.messages
+.output
 	display: flex
 	flex-direction: column
 	align-items: center
+	overflow: hidden
+	height: 250px
 	font-size: 14px
 	span
 		text-align: center
 		margin-top: 15px
-.error
-	color: $err
-.successfully
-	color: $successfully	
 small
 	display: flex
 	width: 200px
