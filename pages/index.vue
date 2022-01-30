@@ -159,9 +159,10 @@ export default {
 							this.ws.send(
 								JSON.stringify({
 									action: 'otherBalance',
-									userBalance: Number(res.data.userNewBalance),
-									reqUserBalance: Number(res.data.reqUserNewBalance),
-									nickname: this.requiredNickname
+									balance: Number(res.data.userNewBalance),
+									requiredBalance: Number(res.data.reqUserNewBalance),
+									nickname: this.$auth.user.nickname,
+									requiredNickname: this.requiredNickname,
 								})
 							)
 							this.transferCount = null
