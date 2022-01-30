@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const expressJWT = require('express-jwt')
-const cookieParser = require('cookie-parser')
 
 const app = express()
-app.use(cookieParser())
 
 app.use(expressJWT({secret: 'key'}).unless({path: '/api/user/login'}))
 
@@ -22,7 +20,10 @@ router.post('/user/replenish', async (req, res) => {
       {balance: user.balance},
       {balance: newBalance}
     )
-    res.status(200).json({message: 'Balance has been successfully replenished', newBalance})
+    res.status(200).json({
+      message: {successfully: 'Balance has been successfully replenished', type: 'successfully'},
+      newBalance
+    })
   }
 })
 
@@ -37,7 +38,10 @@ router.post('/user/withdraw', async (req, res) => {
       {balance: user.balance},
       {balance: newBalance}
     )
-    res.status(200).json({message: 'Money successfully withdrawn', newBalance})
+    res.status(200).json({
+      message: {successfully: 'Money has been successfully withdraw', type: 'successfully'},
+      newBalance
+    })
   }
 })
 
@@ -61,10 +65,24 @@ router.post('/user/transfer', async (req, res) => {
         {balance: requiredUser.balance},
         {balance: reqUserNewBalance}
       )
-      res.status(200).json({message: `The money was successfully transferred to the ${requiredUser.nickname}`, userNewBalance, reqUserNewBalance})
+      res.status(200).json({
+        message: {successfully: `The money was successfully transferred to the ${requiredUser.nickname}`, type: 'successfully'},
+        userNewBalance,
+        reqUserNewBalance
+      })
     } else {
-      res.status(500).json({message: 'ERROR: User not found'})
+      res.status(500).json({message: {error: 'User not found', type: 'error'},})
     }
+  }
+})
+
+//ПОЛЬЗОВАТЕЛЬ
+router.post('/user/user', async (req, res) => {
+  const user = await User.findOne({
+    nickname: req.body.nickname,
+  })
+  if (user) {
+    res.status(200).json({id: user._id, nickname: user.nickname})
   }
 })
 
@@ -90,7 +108,7 @@ router.post('/user/login', async (req, res) => {
       nickname: user.nickname,
       balance: user.balance
     }
-    jwt.sign(payload, 'key', {expiresIn: '30m'}, function(err, token) {
+    jwt.sign(payload, 'key', {expiresIn: '2h'}, function(err, token) {
       res.status(200).json({token: token, payload: payload})
     })
   } else {

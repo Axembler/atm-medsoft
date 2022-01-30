@@ -1,5 +1,6 @@
 <template>
 	<div class="main">
+
 		<div class="info">
 			<span class="name">
 				Hello, {{ $auth.user.nickname }}!
@@ -8,22 +9,23 @@
 				Balance: {{ balance }} rubles
 			</span>
 		</div>
+
 		<div class="actions">
 			<div class="replenish">
 				<small for="replenish-input">Replenish the balance by the amount of:</small>
-				<form class="display-flex">
+				<form class="display-flex" @submit.prevent="replenish">
 					<input id="replenish-input" type="number" min="1" v-model.trim="replenishCount" />
-					<button @click="replenish"><img class="check" src="images/check.svg"></button>
+					<button type="submit"><img class="check" src="images/check.svg"></button>
 				</form>
 			</div>
 			<div class="withdraw">
 				<small for="withdraw-input">Withdraw money from your account in the amount of:</small>
-				<form class="display-flex">
+				<form class="display-flex" @submit.prevent="withdraw">
 					<input id="withdraw-input" type="number" min="1" v-model.trim="withdrawCount" />
-					<button @click="withdraw"><img class="check" src="images/check.svg"></button>
+					<button type="submit"><img class="check" src="images/check.svg"></button>
 				</form>
 			</div>
-			<form class="transfer">
+			<form class="transfer" @submit.prevent="transfer">
 				<div class="display-flex direction-column">
 					<label>Transfer money from your account to the user's account</label>
 
@@ -33,17 +35,23 @@
 					<small for="transfer-input">Transfer amount:</small>
 					<input type="number" id="transfer-input" min="1" v-model.trim="transferCount" />
 				</div>
-				<button class="transfer-perform" @click="transfer">TRANSFER</button>
+				<button class="transfer-perform" type="submit">TRANSFER</button>
 			</form>
 		</div>
+
 		<div class="output">
-			<span class="successfully" v-for="message in messages" :key="message.id">
-				{{ message }}
-			</span>
-			<span class="error" v-for="error in errors" :key="error.id">
-				{{ error }}
+			<span
+				v-for="(message, index) in messages"
+				:key='index + 1'
+				:class="[
+					{'error': message.type === 'error'},
+					{'successfully': message.type === 'successfully'}
+				]"
+			>
+				{{ message.message }}
 			</span>
 		</div>
+
 	</div>
 </template>
 
@@ -53,6 +61,8 @@ export default {
 
 	data() {
 		return {
+			ws: null,
+
 			balance: '',
 
 			requiredNickname: '',
@@ -62,7 +72,6 @@ export default {
 			transferCount: null,
 
 			messages: [],
-			errors: [],
 
 			pending: false
 		}
@@ -70,7 +79,6 @@ export default {
 	methods: {
 		//ПОПОЛНЕНИЕ
 		replenish() {
-			event.preventDefault()
 			if (!this.pending) {
 				if (this.replenishCount !== '' && this.replenishCount > 0) {
 					this.pending = true
@@ -80,15 +88,22 @@ export default {
 					}
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
-						this.messages.push(res.data.message)
+						this.messages.push({message: res.data.message.successfully, type: res.data.message.type})
 						setTimeout(() => this.messages.shift(), 3000)
-						this.balance = Number(res.data.newBalance)
 						this.replenishCount = null
+
+						this.ws.send(
+							JSON.stringify({
+								action: 'balance',
+								balance: Number(res.data.newBalance)
+							})
+						)
+
 						this.pending = false
 					})
 				} else {
-					this.errors.push('It is not possible to send a negative or empty amount')
-					setTimeout(() => this.errors.shift(), 3000)
+					this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+					setTimeout(() => this.messages.shift(), 3000)
 					this.replenishCount = null
 					this.pending = false
 				}
@@ -96,7 +111,6 @@ export default {
 		},
 		//СНЯТИЕ
 		withdraw() {
-			event.preventDefault()
 			if (!this.pending) {
 				if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
 					this.pending = true
@@ -106,15 +120,22 @@ export default {
 					}
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
-						this.messages.push(res.data.message)
+						this.messages.push({message: res.data.message.successfully, type: res.data.message.type})
 						setTimeout(() => this.messages.shift(), 3000)
-						this.balance = Number(res.data.newBalance)
 						this.withdrawCount = null
+
+						this.ws.send(
+							JSON.stringify({
+								action: 'balance',
+								balance: Number(res.data.newBalance)
+							})
+						)
+
 						this.pending = false
 					})
 				} else {
-					this.errors.push('It is not possible to send a negative or empty amount')
-					setTimeout(() => this.errors.shift(), 3000)
+					this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+					setTimeout(() => this.messages.shift(), 3000)
 					this.withdrawCount = null
 					this.pending = false
 				}
@@ -122,7 +143,6 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			event.preventDefault()
 			if (!this.pending) {
 				if (this.$auth.user.nickname !== this.requiredNickname) {
 					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
@@ -134,27 +154,34 @@ export default {
 						}
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
-							this.messages.push(res.data.message)
+							this.messages.push({message: res.data.message.successfully, type: res.data.message.type})
 							setTimeout(() => this.messages.shift(), 3000)
-							this.balance = Number(res.data.userNewBalance)
+							this.ws.send(
+								JSON.stringify({
+									action: 'otherBalance',
+									userBalance: Number(res.data.userNewBalance),
+									reqUserBalance: Number(res.data.reqUserNewBalance),
+									nickname: this.requiredNickname
+								})
+							)
 							this.transferCount = null
 							this.requiredNickname = ''
 							this.pending = false
 						})
 						.catch((err) => {
-							this.messages.push(err.response.data.message)
+							this.messages.push({message: err.response.data.message.error, type: 'error'})
 							setTimeout(() => this.messages.shift(), 3000)
 							this.pending = false
 						})
 					} else {
-						this.errors.push('It is not possible to send a negative or empty amount')
-						setTimeout(() => this.errors.shift(), 3000)
+						this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+						setTimeout(() => this.messages.shift(), 3000)
 						this.transferCount = null
 						this.pending = false
 					}
 				} else {
-					this.errors.push('It is not possible to send a negative or empty amount')
-					setTimeout(() => this.errors.shift(), 3000)
+					this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+					setTimeout(() => this.messages.shift(), 3000)
 					this.transferCount = null
 					this.pending = false
 				}
@@ -162,13 +189,38 @@ export default {
 		}
 	},
 	mounted() {
+		this.ws = new WebSocket('ws://localhost:5000')
+
+		this.ws.onopen = function() {
+			console.log('WS-Client connected')
+		}
+
 		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
 		.then((res) => {
-			this.balance = Number(res.data.balance)
+			this.ws.send(
+				JSON.stringify({
+					action: 'balance',
+					balance: Number(res.data.balance)
+				})
+			)
 		})
+
+		this.$axios.post('/api/user/user', {nickname: this.$auth.user.nickname})
+		.then((res) => {
+			this.ws.send(
+				JSON.stringify({
+					action: 'user',
+					user: res.data
+				})
+			)
+		})
+
+		this.ws.onmessage = (balance) => {
+			this.balance = balance.data
+		}
 	}
 }
-</script>s
+</script>
 
 <style lang="sass" scoped>
 .main
