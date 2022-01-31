@@ -3,14 +3,12 @@
     "name": "login",
     "path": "/login",
     "component": "D:\\\\projects\\\\atm\\\\pages\\\\login.vue",
-    "chunkName": "pages/login",
-    "_name": "_59e4dd9e"
+    "chunkName": "pages/login"
   },
   {
     "name": "index",
     "path": "/",
     "component": "D:\\\\projects\\\\atm\\\\pages\\\\index.vue",
-    "chunkName": "pages/index",
-    "_name": "_0965ee1a"
+    "chunkName": "pages/index"
   }
 ]
