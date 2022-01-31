@@ -88,21 +88,25 @@ export default {
 					}
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
-						this.messages.push({message: res.data.message.successfully, type: res.data.message.type})
+						this.messages.push({
+							message: res.data.message.successfully,
+							type: res.data.message.type
+						})
 						setTimeout(() => this.messages.shift(), 3000)
 						this.replenishCount = null
-
 						this.ws.send(
 							JSON.stringify({
 								action: 'balance',
 								balance: Number(res.data.newBalance)
 							})
 						)
-
 						this.pending = false
 					})
 				} else {
-					this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+					this.messages.push({
+						message: 'It is not possible to send a negative or empty amount',
+						type: 'error'
+					})
 					setTimeout(() => this.messages.shift(), 3000)
 					this.replenishCount = null
 					this.pending = false
@@ -112,7 +116,6 @@ export default {
 		//СНЯТИЕ
 		withdraw() {
 			if (!this.pending) {
-				console.log(typeof this.balance)
 				if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
 					this.pending = true
 					const form = {
@@ -121,21 +124,25 @@ export default {
 					}
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
-						this.messages.push({message: res.data.message.successfully, type: res.data.message.type})
+						this.messages.push({
+							message: res.data.message.successfully,
+							type: res.data.message.type
+						})
 						setTimeout(() => this.messages.shift(), 3000)
 						this.withdrawCount = null
-
 						this.ws.send(
 							JSON.stringify({
 								action: 'balance',
 								balance: Number(res.data.newBalance)
 							})
 						)
-
 						this.pending = false
 					})
 				} else {
-					this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+					this.messages.push({
+						message: 'It is not possible to send a negative or empty amount',
+						type: 'error'
+					})
 					setTimeout(() => this.messages.shift(), 3000)
 					this.withdrawCount = null
 					this.pending = false
@@ -155,7 +162,10 @@ export default {
 						}
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
-							this.messages.push({message: res.data.message.successfully, type: res.data.message.type})
+							this.messages.push({
+								message: res.data.message.successfully,
+								type: res.data.message.type
+							})
 							setTimeout(() => this.messages.shift(), 3000)
 							this.ws.send(
 								JSON.stringify({
@@ -171,18 +181,27 @@ export default {
 							this.pending = false
 						})
 						.catch((err) => {
-							this.messages.push({message: err.response.data.message.error, type: 'error'})
+							this.messages.push({
+								message: err.response.data.message.error,
+								type: 'error'
+							})
 							setTimeout(() => this.messages.shift(), 3000)
 							this.pending = false
 						})
 					} else {
-						this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+						this.messages.push({
+							message: 'It is not possible to send a negative or empty amount',
+							type: 'error'
+						})
 						setTimeout(() => this.messages.shift(), 3000)
 						this.transferCount = null
 						this.pending = false
 					}
 				} else {
-					this.messages.push({message: 'It is not possible to send a negative or empty amount', type: 'error'})
+					this.messages.push({
+						message: 'It is not possible to send a negative or empty amount',
+						type: 'error'
+					})
 					setTimeout(() => this.messages.shift(), 3000)
 					this.transferCount = null
 					this.pending = false
@@ -197,7 +216,7 @@ export default {
 			console.log('WS-Client connected')
 		}
 
-		// ОТОБРАЖЕНИЕ БАЛАНСА
+		// ПОИСК И ОТПРАВЛЕНИЕ БАЛАНСА
 		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
 		.then((res) => {
 			this.ws.send(
@@ -219,6 +238,7 @@ export default {
 			)
 		})
 
+		// ОТОБРАЖЕНИЕ БАЛАНСА
 		this.ws.onmessage = (balance) => {
 			this.balance = Number(balance.data)
 		}

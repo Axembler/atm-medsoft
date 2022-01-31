@@ -23,11 +23,8 @@ app.use(user)
 const clients = []
 
 const onConnect = ws => {
-	console.log('The user has connected')
-
 	ws.on('message', message => {
-		console.log('Client sent:', JSON.parse(message))
-
+		// console.log('Client sent:', JSON.parse(message))
 		try {
 			const jsonMessage = JSON.parse(message)
 
@@ -36,6 +33,7 @@ const onConnect = ws => {
 					ws.id = jsonMessage.user.id
 					ws.nickname = jsonMessage.user.nickname
 					clients.push(ws)
+					console.log(`${ws.nickname} has connected`)
 					break;
 
 				case 'balance':
@@ -43,11 +41,12 @@ const onConnect = ws => {
 					break;
 
 				case 'otherBalance':
-					clients.forEach(client => {
-						if (client.nickname === jsonMessage.nickname) {
-							client.send(Number(jsonMessage.balance))
-						}
-					})
+					// clients.forEach(client => {
+					// 	if (client.nickname === jsonMessage.nickname) {
+					// 		client.send(Number(jsonMessage.balance))
+					// 	}
+					// })
+					ws.send(Number(jsonMessage.balance))
 
 					clients.forEach(client => {
 						if (client.nickname === jsonMessage.requiredNickname) {
@@ -63,12 +62,12 @@ const onConnect = ws => {
 		} catch (error) {
 			console.log(error)
 		}
-
 	})
 	ws.on('close', function() {
+		console.log(`${ws.nickname} has disconnected`)
 		clients.pop(ws)
-		console.log('The user has disconnected')
 	})
+
 	ws.on('error', function(err) {
 		console.log('Error:', err)
 	})
