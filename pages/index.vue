@@ -112,6 +112,7 @@ export default {
 		//СНЯТИЕ
 		withdraw() {
 			if (!this.pending) {
+				console.log(typeof this.balance)
 				if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
 					this.pending = true
 					const form = {
@@ -162,7 +163,7 @@ export default {
 									balance: Number(res.data.userNewBalance),
 									requiredBalance: Number(res.data.reqUserNewBalance),
 									nickname: this.$auth.user.nickname,
-									requiredNickname: this.requiredNickname,
+									requiredNickname: this.requiredNickname
 								})
 							)
 							this.transferCount = null
@@ -196,6 +197,7 @@ export default {
 			console.log('WS-Client connected')
 		}
 
+		// ОТОБРАЖЕНИЕ БАЛАНСА
 		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
 		.then((res) => {
 			this.ws.send(
@@ -206,6 +208,7 @@ export default {
 			)
 		})
 
+		// ОТПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ В WEBSOCKET
 		this.$axios.post('/api/user/user', {nickname: this.$auth.user.nickname})
 		.then((res) => {
 			this.ws.send(
@@ -217,7 +220,7 @@ export default {
 		})
 
 		this.ws.onmessage = (balance) => {
-			this.balance = balance.data
+			this.balance = Number(balance.data)
 		}
 	}
 }

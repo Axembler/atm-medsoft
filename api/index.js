@@ -39,19 +39,19 @@ const onConnect = ws => {
 					break;
 
 				case 'balance':
-					ws.send(jsonMessage.balance)
+					ws.send(Number(jsonMessage.balance))
 					break;
 
 				case 'otherBalance':
 					clients.forEach(client => {
 						if (client.nickname === jsonMessage.nickname) {
-							client.send(jsonMessage.balance)
+							client.send(Number(jsonMessage.balance))
 						}
 					})
 
 					clients.forEach(client => {
 						if (client.nickname === jsonMessage.requiredNickname) {
-							client.send(jsonMessage.requiredBalance)
+							client.send(Number(jsonMessage.requiredBalance))
 						}
 					})
 					break;
