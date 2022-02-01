@@ -97,7 +97,7 @@ export default {
 						this.ws.send(
 							JSON.stringify({
 								action: 'balance',
-								balance: Number(res.data.newBalance)
+								balance: res.data.newBalance
 							})
 						)
 						this.pending = false
@@ -133,7 +133,7 @@ export default {
 						this.ws.send(
 							JSON.stringify({
 								action: 'balance',
-								balance: Number(res.data.newBalance)
+								balance: res.data.newBalance
 							})
 						)
 						this.pending = false
@@ -151,6 +151,7 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
+			console.log(typeof this.balance)
 			if (!this.pending) {
 				if (this.$auth.user.nickname !== this.requiredNickname) {
 					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
@@ -170,8 +171,8 @@ export default {
 							this.ws.send(
 								JSON.stringify({
 									action: 'otherBalance',
-									balance: Number(res.data.userNewBalance),
-									requiredBalance: Number(res.data.reqUserNewBalance),
+									balance: res.data.userNewBalance,
+									requiredBalance: res.data.reqUserNewBalance,
 									nickname: this.$auth.user.nickname,
 									requiredNickname: this.requiredNickname
 								})
@@ -228,7 +229,7 @@ export default {
 		})
 
 		// ОТПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ В WEBSOCKET
-		this.$axios.post('/api/user/user', {nickname: this.$auth.user.nickname})
+		this.$axios.post('/api/user/WS-user', {nickname: this.$auth.user.nickname})
 		.then((res) => {
 			this.ws.send(
 				JSON.stringify({

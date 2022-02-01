@@ -21,7 +21,10 @@ router.post('/user/replenish', async (req, res) => {
       {balance: newBalance}
     )
     res.status(200).json({
-      message: {successfully: 'Balance has been successfully replenished', type: 'successfully'},
+      message: {
+        successfully: 'Balance has been successfully replenished',
+        type: 'successfully'
+      },
       newBalance
     })
   }
@@ -39,7 +42,10 @@ router.post('/user/withdraw', async (req, res) => {
       {balance: newBalance}
     )
     res.status(200).json({
-      message: {successfully: 'Money has been successfully withdraw', type: 'successfully'},
+      message: {
+        successfully: 'Money has been successfully withdraw',
+        type: 'successfully'
+      },
       newBalance
     })
   }
@@ -47,42 +53,46 @@ router.post('/user/withdraw', async (req, res) => {
 
 // ПЕРЕДАЧА
 router.post('/user/transfer', async (req, res) => {
-  const user = await User.findOne({
-    nickname: req.body.nickname,
-  })
-  const requiredUser = await User.findOne({
-    nickname: req.body.requiredNickname,
-  })
+  const user = await User.findOne({nickname: req.body.nickname})
+  const requiredUser = await User.findOne({nickname: req.body.requiredNickname})
+
   if (user) {
     if (requiredUser && requiredUser !== user) {
       const userNewBalance = Number(user.balance) - Number(req.body.transferCount)
-      await User.updateOne(
-        {balance: user.balance},
-        {balance: userNewBalance}
-      )
       const reqUserNewBalance = Number(requiredUser.balance) + Number(req.body.transferCount)
-      await User.updateOne(
-        {balance: requiredUser.balance},
-        {balance: reqUserNewBalance}
-      )
+
+      await User.updateOne({balance: user.balance}, {balance: userNewBalance})
+      await User.updateOne({balance: requiredUser.balance}, {balance: reqUserNewBalance})
+
       res.status(200).json({
-        message: {successfully: `The money was successfully transferred to the ${requiredUser.nickname}`, type: 'successfully'},
+        message: {
+          successfully: `The money was successfully transferred to the ${requiredUser.nickname}`,
+          type: 'successfully'
+        },
         userNewBalance,
         reqUserNewBalance
       })
     } else {
-      res.status(500).json({message: {error: 'User not found', type: 'error'},})
+      res.status(500).json({
+        message: {
+          error: 'User not found',
+          type: 'error'
+        }
+      })
     }
   }
 })
 
 // ПОЛЬЗОВАТЕЛЬ
-router.post('/user/user', async (req, res) => {
+router.post('/user/WS-user', async (req, res) => {
   const user = await User.findOne({
     nickname: req.body.nickname,
   })
   if (user) {
-    res.status(200).json({id: user._id, nickname: user.nickname})
+    res.status(200).json({
+      id: user._id,
+      nickname: user.nickname
+    })
   }
 })
 
@@ -109,7 +119,10 @@ router.post('/user/login', async (req, res) => {
       balance: user.balance
     }
     jwt.sign(payload, 'key', {expiresIn: '2h'}, function(err, token) {
-      res.status(200).json({token: token, payload: payload})
+      res.status(200).json({
+        token: token,
+        payload: payload
+      })
     })
   } else {
     res.status(500).json({message: 'Incorrect data entered'})
