@@ -3,7 +3,6 @@
 		<div class="buttons">
 			<NuxtLink exact to="/" class="logo">ATM</NuxtLink>
 			<button class="logout" @click="logout" v-if="$auth.loggedIn">Log out</button>
-			<!-- <NuxtLink exact to="/login" class="login" v-if="!$auth.loggedIn">Log in</NuxtLink> -->
 		</div>
 	</header>
 </template>
@@ -15,6 +14,7 @@ export default {
 			this.$auth.logout() 
 			this.$router.push('/login')
 			localStorage.removeItem('payload')
+			// this.ws.close(1000, 'logout')
 		}
 	}
 }

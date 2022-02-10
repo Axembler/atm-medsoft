@@ -151,7 +151,6 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			console.log(typeof this.balance)
 			if (!this.pending) {
 				if (this.$auth.user.nickname !== this.requiredNickname) {
 					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {

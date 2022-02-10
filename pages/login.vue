@@ -1,7 +1,7 @@
 <template>
 	<form class="main">
 		<div class="form">
-			<label for="nickname">Nickname (Иван | Егор)</label>
+			<label for="nickname">Nickname (Jordan | Steven)</label>
 			<input list="nicknames" id="nickname" type="text" v-model.trim="nickname" autofocus>
 
 			<label for="password">Password (123 | 321)</label>
