@@ -139,10 +139,10 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			// if (!this.pending) {
-			// 	if (this.$auth.user.nickname !== this.requiredNickname) {
-			// 		if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
-			// 			this.pending = true
+			if (!this.pending) {
+				if (this.$auth.user.nickname !== this.requiredNickname) {
+					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
+						this.pending = true
 						const form = {
 							nickname: this.$auth.user.nickname,
 							requiredNickname: this.requiredNickname,
@@ -159,35 +159,35 @@ export default {
 							setTimeout(() => this.messages.shift(), 3000)
 							this.transferCount = null
 							this.requiredNickname = ''
-							// this.pending = false
+							this.pending = false
 						})
-		// 				.catch((err) => {
-		// 					this.messages.push({
-		// 						message: err.response.data.message.error,
-		// 						type: 'error'
-		// 					})
-		// 					setTimeout(() => this.messages.shift(), 3000)
-		// 					this.pending = false
-		// 				})
-		// 			} else {
-		// 				this.messages.push({
-		// 					message: 'It is not possible to send a negative or empty amount',
-		// 					type: 'error'
-		// 				})
-		// 				setTimeout(() => this.messages.shift(), 3000)
-		// 				this.transferCount = null
-		// 				this.pending = false
-		// 			}
-		// 		} else {
-		// 			this.messages.push({
-		// 				message: 'It is not possible to send a negative or empty amount',
-		// 				type: 'error'
-		// 			})
-		// 			setTimeout(() => this.messages.shift(), 3000)
-		// 			this.transferCount = null
-		// 			this.pending = false
-		// 		}
-		// 	}
+						.catch((err) => {
+							this.messages.push({
+								message: err.response.data.message.error,
+								type: 'error'
+							})
+							setTimeout(() => this.messages.shift(), 3000)
+							this.pending = false
+						})
+					} else {
+						this.messages.push({
+							message: 'It is not possible to send a negative or empty amount',
+							type: 'error'
+						})
+						setTimeout(() => this.messages.shift(), 3000)
+						this.transferCount = null
+						this.pending = false
+					}
+				} else {
+					this.messages.push({
+						message: 'It is not possible transfer money to yourself',
+						type: 'error'
+					})
+					setTimeout(() => this.messages.shift(), 3000)
+					this.transferCount = null
+					this.pending = false
+				}
+			}
 		}
 	},
 	mounted() {
