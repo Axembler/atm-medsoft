@@ -61,9 +61,7 @@ export default {
 
 	data() {
 		return {
-			ws: null,
-
-			balance: '',
+			balance: null,
 
 			requiredNickname: '',
 
@@ -84,22 +82,17 @@ export default {
 					this.pending = true
 					const form = {
 						nickname: this.$auth.user.nickname,
-						replenishCount: this.replenishCount
+						replenishCount: Number(this.replenishCount)
 					}
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
+						this.balance = res.data.newBalance
 						this.messages.push({
 							message: res.data.message.successfully,
 							type: res.data.message.type
 						})
 						setTimeout(() => this.messages.shift(), 3000)
 						this.replenishCount = null
-						this.ws.send(
-							JSON.stringify({
-								action: 'balance',
-								balance: res.data.newBalance
-							})
-						)
 						this.pending = false
 					})
 				} else {
@@ -120,22 +113,17 @@ export default {
 					this.pending = true
 					const form = {
 						nickname: this.$auth.user.nickname,
-						withdrawCount: this.withdrawCount
+						withdrawCount: Number(this.withdrawCount)
 					}
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
+						this.balance = res.data.newBalance
 						this.messages.push({
 							message: res.data.message.successfully,
 							type: res.data.message.type
 						})
 						setTimeout(() => this.messages.shift(), 3000)
 						this.withdrawCount = null
-						this.ws.send(
-							JSON.stringify({
-								action: 'balance',
-								balance: res.data.newBalance
-							})
-						)
 						this.pending = false
 					})
 				} else {
@@ -151,98 +139,62 @@ export default {
 		},
 		//ПЕРЕДАЧА
 		transfer() {
-			console.log(typeof this.balance)
-			if (!this.pending) {
-				if (this.$auth.user.nickname !== this.requiredNickname) {
-					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
-						this.pending = true
+			// if (!this.pending) {
+			// 	if (this.$auth.user.nickname !== this.requiredNickname) {
+			// 		if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
+			// 			this.pending = true
 						const form = {
 							nickname: this.$auth.user.nickname,
 							requiredNickname: this.requiredNickname,
-							transferCount: this.transferCount
+							transferCount: Number(this.transferCount)
 						}
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
+							this.balance = res.data.userNewBalance
+
 							this.messages.push({
 								message: res.data.message.successfully,
 								type: res.data.message.type
 							})
 							setTimeout(() => this.messages.shift(), 3000)
-							this.ws.send(
-								JSON.stringify({
-									action: 'otherBalance',
-									balance: res.data.userNewBalance,
-									requiredBalance: res.data.reqUserNewBalance,
-									nickname: this.$auth.user.nickname,
-									requiredNickname: this.requiredNickname
-								})
-							)
 							this.transferCount = null
 							this.requiredNickname = ''
-							this.pending = false
+							// this.pending = false
 						})
-						.catch((err) => {
-							this.messages.push({
-								message: err.response.data.message.error,
-								type: 'error'
-							})
-							setTimeout(() => this.messages.shift(), 3000)
-							this.pending = false
-						})
-					} else {
-						this.messages.push({
-							message: 'It is not possible to send a negative or empty amount',
-							type: 'error'
-						})
-						setTimeout(() => this.messages.shift(), 3000)
-						this.transferCount = null
-						this.pending = false
-					}
-				} else {
-					this.messages.push({
-						message: 'It is not possible to send a negative or empty amount',
-						type: 'error'
-					})
-					setTimeout(() => this.messages.shift(), 3000)
-					this.transferCount = null
-					this.pending = false
-				}
-			}
+		// 				.catch((err) => {
+		// 					this.messages.push({
+		// 						message: err.response.data.message.error,
+		// 						type: 'error'
+		// 					})
+		// 					setTimeout(() => this.messages.shift(), 3000)
+		// 					this.pending = false
+		// 				})
+		// 			} else {
+		// 				this.messages.push({
+		// 					message: 'It is not possible to send a negative or empty amount',
+		// 					type: 'error'
+		// 				})
+		// 				setTimeout(() => this.messages.shift(), 3000)
+		// 				this.transferCount = null
+		// 				this.pending = false
+		// 			}
+		// 		} else {
+		// 			this.messages.push({
+		// 				message: 'It is not possible to send a negative or empty amount',
+		// 				type: 'error'
+		// 			})
+		// 			setTimeout(() => this.messages.shift(), 3000)
+		// 			this.transferCount = null
+		// 			this.pending = false
+		// 		}
+		// 	}
 		}
 	},
 	mounted() {
-		this.ws = new WebSocket('ws://localhost:5000')
-
-		this.ws.onopen = function() {
-			console.log('WS-Client connected')
-		}
-
-		// ПОИСК И ОТПРАВЛЕНИЕ БАЛАНСА
 		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
 		.then((res) => {
-			this.ws.send(
-				JSON.stringify({
-					action: 'balance',
-					balance: Number(res.data.balance)
-				})
-			)
+			this.balance = Number(res.data.balance)
 		})
-
-		// ОТПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ В WEBSOCKET
-		this.$axios.post('/api/user/WS-user', {nickname: this.$auth.user.nickname})
-		.then((res) => {
-			this.ws.send(
-				JSON.stringify({
-					action: 'user',
-					user: res.data
-				})
-			)
-		})
-
-		// ОТОБРАЖЕНИЕ БАЛАНСА
-		this.ws.onmessage = (balance) => {
-			this.balance = Number(balance.data)
-		}
 	}
 }
 </script>
