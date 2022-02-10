@@ -62,8 +62,7 @@ export default {
 
   serverMiddleware: [
     { path: "/api", handler: require("body-parser").json() },
-    { path: '/api', handler: '~/api' },
-    { path: 'api/server', handler: '~api/server' }
+    { path: '/api', handler: '~/api' }
   ],
 
   build: {
