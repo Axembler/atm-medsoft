@@ -84,7 +84,7 @@ export default {
 					this.pending = true
 					const form = {
 						nickname: this.$auth.user.nickname,
-						replenishCount: this.replenishCount
+						replenishCount: Number(this.replenishCount)
 					}
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
@@ -120,7 +120,7 @@ export default {
 					this.pending = true
 					const form = {
 						nickname: this.$auth.user.nickname,
-						withdrawCount: this.withdrawCount
+						withdrawCount: Number(this.withdrawCount)
 					}
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
@@ -158,7 +158,7 @@ export default {
 						const form = {
 							nickname: this.$auth.user.nickname,
 							requiredNickname: this.requiredNickname,
-							transferCount: this.transferCount
+							transferCount: Number(this.transferCount)
 						}
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
@@ -199,7 +199,7 @@ export default {
 					}
 				} else {
 					this.messages.push({
-						message: 'It is not possible to send a negative or empty amount',
+						message: 'It is not possible transfer money to yourself',
 						type: 'error'
 					})
 					setTimeout(() => this.messages.shift(), 3000)

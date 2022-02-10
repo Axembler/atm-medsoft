@@ -11,15 +11,13 @@ const User = require('../models/User');
 
 // ПОПОЛНЕНИЕ
 router.post('/user/replenish', async (req, res) => {
-  const user = await User.findOne({
-    nickname: req.body.nickname,
-  })
+  const user = await User.findOne({nickname: req.body.nickname})
+
   if (user) {
-    const newBalance = Number(user.balance) + Number(req.body.replenishCount)
-    await User.updateOne(
-      {balance: user.balance},
-      {balance: newBalance}
-    )
+    const newBalance = Number(user.balance) + req.body.replenishCount
+
+    await User.updateOne({nickname: req.body.nickname}, {balance: newBalance})
+
     res.status(200).json({
       message: {
         successfully: 'Balance has been successfully replenished',
@@ -32,15 +30,13 @@ router.post('/user/replenish', async (req, res) => {
 
 // СНЯТИЕ
 router.post('/user/withdraw', async (req, res) => {
-  const user = await User.findOne({
-    nickname: req.body.nickname,
-  })
+  const user = await User.findOne({nickname: req.body.nickname})
+
   if (user) {
-    const newBalance = Number(user.balance) - Number(req.body.withdrawCount)
-    await User.updateOne(
-      {balance: user.balance},
-      {balance: newBalance}
-    )
+    const newBalance = Number(user.balance) - req.body.withdrawCount
+
+    await User.updateOne({nickname: req.body.nickname}, {balance: newBalance})
+
     res.status(200).json({
       message: {
         successfully: 'Money has been successfully withdraw',
@@ -56,30 +52,28 @@ router.post('/user/transfer', async (req, res) => {
   const user = await User.findOne({nickname: req.body.nickname})
   const requiredUser = await User.findOne({nickname: req.body.requiredNickname})
 
-  if (user) {
-    if (requiredUser && requiredUser !== user) {
-      const userNewBalance = Number(user.balance) - Number(req.body.transferCount)
-      const reqUserNewBalance = Number(requiredUser.balance) + Number(req.body.transferCount)
+  if (user && requiredUser && requiredUser !== user) {
+    const userNewBalance = Number(user.balance) - req.body.transferCount
+    const reqUserNewBalance = Number(requiredUser.balance) + req.body.transferCount
 
-      await User.updateOne({balance: user.balance}, {balance: userNewBalance})
-      await User.updateOne({balance: requiredUser.balance}, {balance: reqUserNewBalance})
+    await User.updateOne({nickname: req.body.nickname}, {balance: userNewBalance})
+    await User.updateOne({nickname: req.body.requiredNickname}, {balance: reqUserNewBalance})
 
-      res.status(200).json({
-        message: {
-          successfully: `The money was successfully transferred to the ${requiredUser.nickname}`,
-          type: 'successfully'
-        },
-        userNewBalance,
-        reqUserNewBalance
-      })
-    } else {
-      res.status(500).json({
-        message: {
-          error: 'User not found',
-          type: 'error'
-        }
-      })
-    }
+    res.status(200).json({
+      message: {
+        successfully: `The money was successfully transferred to the ${requiredUser.nickname}`,
+        type: 'successfully'
+      },
+      userNewBalance,
+      reqUserNewBalance
+    })
+  } else {
+    res.status(500).json({
+      message: {
+        error: 'User not found',
+        type: 'error'
+      }
+    })
   }
 })
 
