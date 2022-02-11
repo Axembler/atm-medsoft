@@ -74,6 +74,11 @@ export default {
 			pending: false
 		}
 	},
+	sockets: {
+		connect: function() {
+			console.log('Socket connected')
+		}
+  	},
 	methods: {
 		//ПОПОЛНЕНИЕ
 		replenish() {

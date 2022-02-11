@@ -27,6 +27,7 @@ export default {
   },
 
   plugins: [
+    { src: '@/plugins/socket', ssr: false }
   ],
 
   components: true,
