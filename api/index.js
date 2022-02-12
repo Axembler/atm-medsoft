@@ -48,10 +48,8 @@ io.on('connection', socket => {
   console.log(`${options.format(date)} | ${socket.nickname} has connected`)
 
   // БАЛАНС
-  socket.on('balanceClient', data => {
-    socket.emit('balanceServer', {
-      balance: data.balance
-    })
+  socket.on('balanceClient', (data, callback) => {
+    callback({balance: data.balance})
   })
 
   // ПОДКЛЮЧЕНИЕ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ

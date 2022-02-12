@@ -6,7 +6,7 @@
 				Hello, {{ $auth.user.nickname }}!
 			</span>
 			<span class="balance">
-				Balance: {{ $store.state.balance }} rubles
+				Balance: {{ balance }} rubles
 			</span>
 		</div>
 
@@ -202,12 +202,9 @@ export default {
 	mounted() {
 		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
 		.then((res) => {
-			this.balance = Number(res.data.balance)
-			this.$socket.emit('balanceClient', {
-				balance: Number(res.data.balance)
+			this.$socket.emit('balanceClient', {balance: Number(res.data.balance)}, data => {
+				this.balance = data.balance
 			})
-
-			console.log(this.$store.state);
 		})
 	}
 }
