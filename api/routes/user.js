@@ -64,7 +64,7 @@ router.post('/user/transfer', async (req, res) => {
         successfully: `The money was successfully transferred to the ${requiredUser.nickname}`,
         type: 'successfully'
       },
-      userNewBalance
+      userNewBalance, reqUserNewBalance
     })
   } else {
     res.status(500).json({

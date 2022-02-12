@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(user)
 app.use(cors())
 
-const users = []
+const users = [] // МАССИВ ПОЛЬЗОВАТЕЛЕЙ
 
 io.on('connection', socket => {
   // ПОДКЛЮЧЕНИЕ НЕАВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
@@ -48,8 +48,13 @@ io.on('connection', socket => {
   console.log(`${options.format(date)} | ${socket.nickname} has connected`)
 
   // БАЛАНС
-  socket.on('balanceClient', (data, callback) => {
+  socket.on('balance', (data, callback) => {
     callback({balance: data.balance})
+  })
+
+  // ОБНОВЛЕНИЕ БАЛАНСА У КОНКРЕТНОГО ПОЛЬЗОВАТЕЛЯ
+  socket.on('transfer', (data) => {
+    io.to(data.nickname).emit('test', {balance: data.balance})
   })
 
   // ПОДКЛЮЧЕНИЕ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ

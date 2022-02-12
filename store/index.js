@@ -1,10 +1,10 @@
-// export const state = () => ({
-//   balance: null
-// })
+export const state = () => ({
+  balance: null
+})
 
-// export const mutations = {
-//   socket_balanceServer(ctx, data) {
-//     state.balance = data.balance
-//     console.log(state.balance);
-//   }
-// }
+export const mutations = {
+  socket_test(state, data) {
+    state.balance = data.balance
+    console.log(state.balance);
+  }
+}
