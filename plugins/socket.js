@@ -8,8 +8,8 @@ export default function({ store }) {
       connection: 'http://localhost:3001',
       vuex: {
         store,
-        actionPrefix: 'SOCKET_',
-        mutationPrefix: 'SOCKET_'
+        actionPrefix: 'socket_',
+        mutationPrefix: 'socket_'
       }
     })
   )

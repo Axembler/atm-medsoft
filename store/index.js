@@ -1,7 +1,10 @@
-export const state = () => ({})
+export const state = () => ({
+  balance: null
+})
 
-export const actions = {
-  SOCKET_newMessage(ctx, data) {
-    console.log('Message received', data)
+export const mutations = {
+  socket_balanceServer(ctx, data) {
+    state.balance = data.balance
+    console.log(state.balance);
   }
 }

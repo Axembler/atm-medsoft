@@ -11,9 +11,13 @@
 export default {
 	methods: {
 		async logout() {
-			this.$auth.logout() 
-			this.$router.push('/login')
+			this.$auth.logout()
+
 			localStorage.removeItem('payload')
+
+			this.$socket.disconnect()
+
+			this.$router.push('/login')
 		}
 	}
 }

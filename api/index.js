@@ -8,8 +8,8 @@ const bodyParser = require('body-parser')
 const http = require('http').createServer(app)
 const io = require('socket.io')(http, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
     transports: ['websocket', 'polling'],
     credentials: true
   },
@@ -32,15 +32,59 @@ app.use(user)
 app.use(cors())
 
 const users = []
-const connections = []
 
 io.on('connection', socket => {
-  connections.push(socket)
-  console.log('User connected')
+  // ПОДКЛЮЧЕНИЕ НЕАВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
+  socket.guest = true
+  socket.nickname = 'Guest'
+  users.push(socket)
 
+  const date = new Date()
+  const options = new Intl.DateTimeFormat('ru', {
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric'
+  })
+  console.log(`${options.format(date)} | ${socket.nickname} has connected`)
+
+  // БАЛАНС
+  socket.on('balanceClient', data => {
+    socket.emit('balanceServer', {
+      balance: data.balance
+    })
+  })
+
+  // ПОДКЛЮЧЕНИЕ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
+  socket.on('user', data => {
+    if (socket.guest) {
+      users.splice(users.indexOf(socket), 1)
+
+      socket.id = data.user.id
+      socket.nickname = data.user.nickname
+
+      users.push(socket)
+
+      const date = new Date()
+      const options = new Intl.DateTimeFormat('ru', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+      })
+      console.log(`${options.format(date)} | ${socket.nickname} has connected`)
+    }
+  })
+
+  // ОТКЛЮЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
   socket.on('disconnect', function() {
-    connections.splice(connections.indexOf(socket), 1)
-    console.log('User disconnected')
+    users.splice(users.indexOf(socket), 1)
+
+    const date = new Date()
+    const options = new Intl.DateTimeFormat('ru', {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    })
+    console.log(`${options.format(date)} | ${socket.nickname} has disconnected`)
   })
 })
 
