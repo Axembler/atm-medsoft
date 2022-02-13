@@ -6,7 +6,12 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 
 const http = require('http').createServer(app)
-const io = require('socket.io')(http)
+const io = require('socket.io')(http, {
+  allowRequest: (req, callback) => {
+    callback(null, false);
+  },
+  allowEIO3: true
+})
 
 mongoose.connect(
   'mongodb://pagliaccio:89205103106@cluster0-shard-00-00.xzdxm.mongodb.net:27017,cluster0-shard-00-01.xzdxm.mongodb.net:27017,cluster0-shard-00-02.xzdxm.mongodb.net:27017/atm?ssl=true&replicaSet=atlas-qtyj9o-shard-0&authSource=admin&retryWrites=true&w=majority',
