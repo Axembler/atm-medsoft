@@ -8,7 +8,7 @@ const bodyParser = require('body-parser')
 const http = require('http').createServer(app)
 const io = require('socket.io')(http, {
   cors: {
-    origin: "http://atm-medsoft.herokuapp.com",
+    origin: "*",
     methods: ["GET", "POST"]
   },
   allowRequest: (req, callback) => {
