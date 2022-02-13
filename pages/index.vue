@@ -81,6 +81,9 @@ export default {
 			this.$socket.emit('user', {
 				user: this.$auth.user
 			})
+		},
+		balance: function(data) {
+			this.balance = data.balance
 		}
   	},
 	methods: {
@@ -95,9 +98,7 @@ export default {
 					}
 					this.$axios.post('/api/user/replenish', form)
 					.then((res) => {
-						this.$socket.emit('balance', {balance: Number(res.data.newBalance)}, data => {
-							this.balance = data.balance
-						})
+						this.balance = res.data.newBalance
 						this.messages.push({
 							message: res.data.message.successfully,
 							type: res.data.message.type
@@ -128,9 +129,7 @@ export default {
 					}
 					this.$axios.post('/api/user/withdraw', form)
 					.then((res) => {
-						this.$socket.emit('balance', {balance: Number(res.data.newBalance)}, data => {
-							this.balance = data.balance
-						})
+						this.balance = res.data.newBalance
 						this.messages.push({
 							message: res.data.message.successfully,
 							type: res.data.message.type
@@ -163,10 +162,7 @@ export default {
 						}
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
-
-							this.$socket.emit('balance', {balance: Number(res.data.userNewBalance)}, data => {
-								this.balance = data.balance
-							})
+							this.balance = res.data.userNewBalance
 							
 							this.$socket.emit('transfer', {
 								nickname: this.requiredNickname,
@@ -214,9 +210,7 @@ export default {
 	mounted() {
 		this.$axios.post('/api/user/balance', {nickname: this.$auth.user.nickname})
 		.then((res) => {
-			this.$socket.emit('balance', {balance: Number(res.data.balance)}, data => {
-				this.balance = data.balance
-			})
+			this.balance = res.data.balance
 		})
 	}
 }

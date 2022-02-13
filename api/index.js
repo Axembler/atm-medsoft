@@ -34,19 +34,6 @@ app.use(cors())
 const users = [] // МАССИВ ПОЛЬЗОВАТЕЛЕЙ
 
 io.on('connection', socket => {
-  // ПОДКЛЮЧЕНИЕ НЕАВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
-  socket.guest = true
-  socket.nickname = 'Guest'
-  users.push(socket)
-
-  const date = new Date()
-  const options = new Intl.DateTimeFormat('ru', {
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric'
-  })
-  console.log(`${options.format(date)} | ${socket.nickname} has connected`)
-
   // БАЛАНС
   socket.on('balance', (data, callback) => {
     callback({balance: data.balance})
@@ -54,32 +41,18 @@ io.on('connection', socket => {
 
   // ОБНОВЛЕНИЕ БАЛАНСА У КОНКРЕТНОГО ПОЛЬЗОВАТЕЛЯ
   socket.on('transfer', (data) => {
-    io.to(data.nickname).emit('test', {balance: data.balance})
+    users.forEach(user => {
+      if (user.nickname === data.nickname) {
+        io.to(user.id).emit('balance', {balance: data.balance})
+      }
+    })
   })
 
-  // ПОДКЛЮЧЕНИЕ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
+  // ПОДКЛЮЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
   socket.on('user', data => {
-    if (socket.guest) {
-      users.splice(users.indexOf(socket), 1)
+    socket.nickname = data.user.nickname
 
-      socket.id = data.user.id
-      socket.nickname = data.user.nickname
-
-      users.push(socket)
-
-      const date = new Date()
-      const options = new Intl.DateTimeFormat('ru', {
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric'
-      })
-      console.log(`${options.format(date)} | ${socket.nickname} has connected`)
-    }
-  })
-
-  // ОТКЛЮЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
-  socket.on('disconnect', function() {
-    users.splice(users.indexOf(socket), 1)
+    users.push(socket)
 
     const date = new Date()
     const options = new Intl.DateTimeFormat('ru', {
@@ -87,7 +60,22 @@ io.on('connection', socket => {
       minute: 'numeric',
       second: 'numeric'
     })
-    console.log(`${options.format(date)} | ${socket.nickname} has disconnected`)
+    console.log(`${options.format(date)} | ${socket.nickname} has connected`)
+  })
+
+  // ОТКЛЮЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
+  socket.on('disconnect', function() {
+    if (socket.nickname) {
+      users.splice(users.indexOf(socket), 1)
+
+      const date = new Date()
+      const options = new Intl.DateTimeFormat('ru', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+      })
+      console.log(`${options.format(date)} | ${socket.nickname} has disconnected`)
+    }
   })
 })
 
