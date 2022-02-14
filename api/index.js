@@ -40,10 +40,15 @@ io.on('connection', socket => {
   })
 
   // ОБНОВЛЕНИЕ БАЛАНСА У КОНКРЕТНОГО ПОЛЬЗОВАТЕЛЯ
-  socket.on('transfer', (data) => {
+  socket.on('transferClient', data => {
     users.forEach(user => {
       if (user.nickname === data.nickname) {
-        io.to(user.id).emit('balance', {balance: data.balance})
+        io.to(user.id).emit('transferServer', {
+          balance: data.balance
+        })
+        io.to(user.id).emit('modal', {
+          message: `You have been transferred from ${data.nickname} ${data.transferCount} rubles`
+        })
       }
     })
   })

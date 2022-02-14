@@ -8,3 +8,4 @@ You can directly use them in pages and other components without the need to impo
 
 - `<Footer>` | `<footer>` (components/Footer.vue)
 - `<Header>` | `<header>` (components/Header.vue)
+- `<Modal>` | `<modal>` (components/Modal.vue)

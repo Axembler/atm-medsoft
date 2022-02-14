@@ -58,13 +58,13 @@ router.post('/user/transfer', async (req, res) => {
 
     await User.updateOne({nickname: req.body.nickname}, {balance: userNewBalance})
     await User.updateOne({nickname: req.body.requiredNickname}, {balance: reqUserNewBalance})
-
+    
     res.status(200).json({
       message: {
-        successfully: `The money was successfully transferred to the ${requiredUser.nickname}`,
+        successfully: `The money was successfully transferred ${req.body.transferCount} rubles to the ${requiredUser.nickname}`,
         type: 'successfully'
       },
-      userNewBalance, reqUserNewBalance
+      userNewBalance, reqUserNewBalance, transferCount: req.body.transferCount
     })
   } else {
     res.status(500).json({

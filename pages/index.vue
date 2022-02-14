@@ -51,13 +51,17 @@
 				{{ message.message }}
 			</span>
 		</div>
-
+		<Modal v-show="showModal" @close-modal="showModal = false" />
 	</div>
 </template>
 
 <script>
+import Modal from '~/components/Modal.vue'
+
 export default {
 	middleware: 'auth',
+
+	components: { Modal },
 
 	data() {
 		return {
@@ -71,7 +75,9 @@ export default {
 
 			messages: [],
 
-			pending: false
+			pending: false, // ЗАДЕРЖКА ДЛЯ ЗАПРОСОВ
+
+			showModal: false // ОТОБРАЖЕНИЕ МОДАЛЬНОГО ОКНА
 		}
 	},
 	sockets: {
@@ -82,15 +88,16 @@ export default {
 				user: this.$auth.user
 			})
 		},
-		balance: function(data) {
+		transferServer: function(data) {
 			this.balance = data.balance
+			this.showModal = true
 		}
   	},
 	methods: {
 		//ПОПОЛНЕНИЕ
 		replenish() {
 			if (!this.pending) {
-				if (this.replenishCount !== '' && this.replenishCount > 0) {
+				if (this.replenishCount !== '' && Number(this.replenishCount) > 0) {
 					this.pending = true
 					const form = {
 						nickname: this.$auth.user.nickname,
@@ -121,7 +128,7 @@ export default {
 		//СНЯТИЕ
 		withdraw() {
 			if (!this.pending) {
-				if (this.withdrawCount !== '' && this.balance >= this.withdrawCount && this.withdrawCount > 0) {
+				if (this.withdrawCount !== '' && Number(this.balance) >= Number(this.withdrawCount) && Number(this.withdrawCount) > 0) {
 					this.pending = true
 					const form = {
 						nickname: this.$auth.user.nickname,
@@ -153,7 +160,7 @@ export default {
 		transfer() {
 			if (!this.pending) {
 				if (this.$auth.user.nickname !== this.requiredNickname) {
-					if (this.transferCount !== '' && this.transferCount > 0 && this.balance >= this.transferCount) {
+					if (this.transferCount !== '' && Number(this.transferCount) > 0 && Number(this.balance) >= Number(this.transferCount)) {
 						this.pending = true
 						const form = {
 							nickname: this.$auth.user.nickname,
@@ -163,17 +170,16 @@ export default {
 						this.$axios.post('/api/user/transfer', form)
 						.then((res) => {
 							this.balance = res.data.userNewBalance
-							
-							this.$socket.emit('transfer', {
+							this.$socket.emit('transferClient', {
 								nickname: this.requiredNickname,
-								balance: res.data.reqUserNewBalance
+								balance: res.data.reqUserNewBalance,
+								transferCount: res.data.transferCount
 							})
-
 							this.messages.push({
 								message: res.data.message.successfully,
 								type: res.data.message.type
 							})
-							setTimeout(() => this.messages.shift(), 3000)
+							setTimeout(() => this.messages.shift(), 5000)
 							this.transferCount = null
 							this.requiredNickname = ''
 							this.pending = false
@@ -183,7 +189,7 @@ export default {
 								message: err.response.data.message.error,
 								type: 'error'
 							})
-							setTimeout(() => this.messages.shift(), 3000)
+							setTimeout(() => this.messages.shift(), 5000)
 							this.pending = false
 						})
 					} else {
@@ -191,7 +197,7 @@ export default {
 							message: 'It is not possible to send a negative or empty amount',
 							type: 'error'
 						})
-						setTimeout(() => this.messages.shift(), 3000)
+						setTimeout(() => this.messages.shift(), 5000)
 						this.transferCount = null
 						this.pending = false
 					}
@@ -200,7 +206,7 @@ export default {
 						message: 'It is not possible transfer money to yourself',
 						type: 'error'
 					})
-					setTimeout(() => this.messages.shift(), 3000)
+					setTimeout(() => this.messages.shift(), 5000)
 					this.transferCount = null
 					this.pending = false
 				}

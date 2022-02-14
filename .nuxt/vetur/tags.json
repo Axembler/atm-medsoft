@@ -4,5 +4,8 @@
   },
   "Header": {
     "description": "Auto imported from components/Header.vue"
+  },
+  "Modal": {
+    "description": "Auto imported from components/Modal.vue"
   }
 }
