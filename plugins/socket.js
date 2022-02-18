@@ -10,7 +10,11 @@ export default function({ store }) {
         store,
         actionPrefix: 'socket_',
         mutationPrefix: 'socket_'
-      }
+      },
+      extraHeaders: {
+        'Access-Control-Allow-Credentials': true
+      },
+      allowEIO3: true
     })
   )
 }
