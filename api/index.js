@@ -8,11 +8,10 @@ const bodyParser = require('body-parser')
 const http = require('http').createServer(app)
 const io = require('socket.io')(http, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  },
-  allowRequest: (req, callback) => {
-    callback(null, false);
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    transports: ["websocket", "polling"],
+    credentials: true
   },
   allowEIO3: true
 })
