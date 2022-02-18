@@ -3,7 +3,7 @@
 
 		<div class="info">
 			<span class="name">
-				Hello, {{ $auth.user.nickname }}!
+				Hello, {{ $auth.user.nickname }}
 			</span>
 			<span class="balance">
 				Balance: {{ balance }} rubles
